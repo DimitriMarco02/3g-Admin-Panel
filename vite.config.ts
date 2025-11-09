@@ -16,11 +16,5 @@ export default defineConfig(({ mode }) => {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
       },
-      resolve: {
-        alias: {
-          // Fix: Replace `__dirname` with an ES module-compatible equivalent.
-          '@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), '.'),
-        }
-      }
     };
 });
