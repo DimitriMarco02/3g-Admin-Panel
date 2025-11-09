@@ -3,8 +3,8 @@ import type { Teacher } from '../types';
 
 interface TeachersListProps {
   teachers: Teacher[];
-  selectedTeacherId: number | null;
-  onSelectTeacher: (id: number) => void;
+  selectedTeacherId: string | null;
+  onSelectTeacher: (id: string) => void;
 }
 
 const TeachersList: React.FC<TeachersListProps> = ({ teachers, selectedTeacherId, onSelectTeacher }) => {

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Trial Class Booker</title>
+    <title>3G Coaching Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
@@ -16,11 +16,63 @@
     "vite": "https://aistudiocdn.com/vite@^7.1.7",
     "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.4",
     "path": "https://aistudiocdn.com/path@^0.12.7",
-    "url": "https://aistudiocdn.com/url@^0.11.4"
+    "url": "https://aistudiocdn.com/url@^0.11.4",
+    "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
+    "firebase/": "https://aistudiocdn.com/firebase@^12.3.0/"
   }
 }
 </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --c-primary: 96 165 250; /* blue-400 */
+    --c-primary-fg: 255 255 255;
+    --c-primary-dark: 59 130 246; /* blue-500 */
+    --c-primary-light: 191 219 254; /* blue-200 */
+
+    --c-accent: 252 211 77; /* amber-300 */
+    --c-accent-fg: 124 58 237; /* TBD */
+    --c-accent-dark: 245 158 11; /* amber-500 */
+
+    --c-text-head: 17 24 39; /* gray-900 */
+    --c-text-body: 55 65 81; /* gray-700 */
+    --c-text-muted: 107 114 128; /* gray-500 */
+
+    --c-bg-page: 249 250 251; /* gray-50 */
+    --c-bg-card: 255 255 255;
+    --c-border: 229 231 235; /* gray-200 */
+
+    --c-success: 22 163 74; /* green-600 */
+    --c-success-light: 220 252 231; /* green-100 */
+    --c-danger: 220 38 38; /* red-600 */
+    --c-danger-light: 254 226 226; /* red-100 */
+    --c-warning: 234 179 8; /* yellow-500 */
+    --c-warning-light: 254 249 195; /* yellow-100 */
+    --c-info: 59 130 246; /* blue-500 */
+    --c-info-light: 219 234 254; /* blue-100 */
+    --c-purple: 129 140 248; /* indigo-400 */
+    --c-purple-light: 224 231 255; /* indigo-100 */
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: rgb(var(--c-bg-page));
+    color: rgb(var(--c-text-body));
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: rgb(var(--c-text-head));
+  }
+
   @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -49,6 +101,50 @@
   .horizontal-scroll.active-scroll {
     cursor: grabbing;
     cursor: -webkit-grabbing;
+  }
+
+  /* Remap Tailwind colors */
+  .bg-slate-50 { background-color: rgb(var(--c-bg-page)); }
+  .bg-white { background-color: rgb(var(--c-bg-card)); }
+  .border-slate-100, .border-slate-200 { border-color: rgb(var(--c-border)); }
+  .text-slate-800, .text-slate-900 { color: rgb(var(--c-text-head)); }
+  .text-slate-600, .text-slate-700 { color: rgb(var(--c-text-body)); }
+  .text-slate-500 { color: rgb(var(--c-text-muted)); }
+
+  /* Buttons */
+  .bg-blue-600 { background-color: rgb(var(--c-primary-dark)); color: rgb(var(--c-primary-fg)); }
+  .hover\:bg-blue-700:hover { background-color: rgb(59 130 246 / 0.9); }
+  .bg-blue-100 { background-color: rgb(var(--c-primary-light)); }
+  .text-blue-600 { color: rgb(var(--c-primary-dark)); }
+  .bg-amber-400 { background-color: rgb(var(--c-accent)); color: rgb(var(--c-text-head)); }
+  .hover\:bg-amber-500:hover { background-color: rgb(var(--c-accent-dark)); }
+  .focus\:ring-amber-300:focus { --tw-ring-color: rgb(var(--c-accent) / 0.5); }
+  .bg-green-400 { background-color: rgb(var(--c-success)); color: white; }
+  .hover\:bg-green-500:hover { background-color: rgb(var(--c-success) / 0.9); }
+
+  /* Shadows */
+  .shadow-lg { box-shadow: var(--shadow-md); }
+  .shadow-xl { box-shadow: var(--shadow-lg); }
+
+  /* Status Badges */
+  .bg-purple-100 { background-color: rgb(var(--c-purple-light)); }
+  .text-purple-800 { color: rgb(var(--c-purple)); }
+  .bg-yellow-100 { background-color: rgb(var(--c-warning-light)); }
+  .text-yellow-800 { color: rgb(var(--c-warning)); }
+  .bg-green-100 { background-color: rgb(var(--c-success-light)); }
+  .text-green-800, .text-green-600 { color: rgb(var(--c-success)); }
+  .bg-red-100 { background-color: rgb(var(--c-danger-light)); }
+  .text-red-800, .text-red-600 { color: rgb(var(--c-danger)); }
+  .bg-blue-100 { background-color: rgb(var(--c-info-light)); }
+  .text-blue-800 { color: rgb(var(--c-info)); }
+
+  /* Forms */
+  input, select, textarea {
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  input:focus, select:focus, textarea:focus {
+    --tw-ring-color: rgb(var(--c-primary) / 0.5) !important;
+    border-color: rgb(var(--c-primary)) !important;
   }
 </style>
 <link rel="stylesheet" href="/index.css">

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { ConfirmedBookingDetails } from '../types';
 
@@ -7,7 +8,7 @@ interface ConfirmationProps {
 }
 
 const Confirmation: React.FC<ConfirmationProps> = ({ bookingDetails, onNewBooking }) => {
-  const { studentName, subject, teacher, center, dateTime, phone, curriculum, classLevel } = bookingDetails;
+  const { studentName, subject, teacher, center, dateTime, phone, curriculum, classLevel, bookingType } = bookingDetails;
   
   const formattedDate = dateTime.toLocaleDateString(undefined, {
     weekday: 'long',
@@ -27,12 +28,17 @@ const Confirmation: React.FC<ConfirmationProps> = ({ bookingDetails, onNewBookin
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
         </div>
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Booking Confirmed!</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{bookingType} Booking Confirmed!</h2>
         <p className="text-slate-600 mb-8">
-          Great work, {studentName}! Your trial class is scheduled. We'll send a reminder to {phone}.
+          Great work, {studentName}! Your {bookingType.toLowerCase()} class is scheduled. We'll send a reminder to {phone}.
         </p>
 
         <div className="text-left bg-slate-50 border border-slate-200 rounded-lg p-6 space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-slate-700">Booking Type:</span>
+            <span className="text-slate-900 font-bold">{bookingType}</span>
+          </div>
+          <hr/>
           <div className="flex justify-between items-center">
             <span className="font-semibold text-slate-700">Subject:</span>
             <span className="text-slate-900 font-bold">{subject.name}</span>

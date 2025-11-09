@@ -1,112 +1,98 @@
-import React, { useState } from 'react';
-import type { ConfirmedBookingDetails } from '../types';
 
-interface AdmissionFormProps {
-    bookings: ConfirmedBookingDetails[];
-    onSubmit: (paymentDetails: { paymentMethod: 'Bkash' | 'Cash in Hand', bkashNumber?: string, transactionId?: string }) => void;
-    onBack: () => void;
+
+import React, { useState } from 'react';
+import type { ConfirmedBookingDetails, ScheduleLevel, Subject } from '../types';
+
+interface AdmissionPaymentModalProps {
+    booking: Omit<ConfirmedBookingDetails, 'id'>;
+    onClose: () => void;
+    onSubmit: (paymentDetails: NonNullable<ConfirmedBookingDetails['paymentDetails']>) => void;
 }
 
-const AdmissionForm: React.FC<AdmissionFormProps> = ({ bookings, onSubmit, onBack }) => {
-    const [paymentMethod, setPaymentMethod] = useState<'Bkash' | 'Cash in Hand' | ''>('');
+const AdmissionPaymentModal: React.FC<AdmissionPaymentModalProps> = ({ booking, onClose, onSubmit }) => {
+    const [paymentMethod, setPaymentMethod] = useState<'Bkash' | 'Cash in Hand'>('Bkash');
     const [bkashNumber, setBkashNumber] = useState('');
     const [transactionId, setTransactionId] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const fee = booking.teacher.admissionFee ?? 1000;
+    
+    const month = booking.dateTime.toLocaleString('default', { month: 'long' });
+    const year = booking.dateTime.getFullYear();
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!paymentMethod) {
-            setError('Please select a payment method.');
-            return;
-        }
         if (paymentMethod === 'Bkash' && (!bkashNumber || !transactionId)) {
             setError('Please provide your Bkash number and the transaction ID.');
             return;
         }
+        setLoading(true);
         setError('');
-        onSubmit({
-            paymentMethod,
-            ...(paymentMethod === 'Bkash' && { bkashNumber, transactionId }),
-        });
+
+        const paymentDetails: NonNullable<ConfirmedBookingDetails['paymentDetails']> = 
+            paymentMethod === 'Bkash'
+            ? { paymentMethod: 'Bkash', bkashNumber, transactionId, amountPaid: fee }
+            : { paymentMethod: 'Cash in Hand', amountPaid: fee };
+        
+        await onSubmit(paymentDetails);
+        setLoading(false);
     };
 
     return (
-        <div className="p-4 sm:p-6 animate-fade-in">
-            <button onClick={onBack} className="mb-6 text-blue-600 font-semibold hover:underline flex items-center group">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 transform group-hover:-translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
-                Back to My Bookings
-            </button>
-            <div className="bg-white rounded-2xl shadow-xl shadow-blue-500/10 p-6 sm:p-8">
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Confirm Your Admission</h2>
-                <p className="text-slate-600 mb-2">You are taking admission for the following trial class(es):</p>
-                <div className="mb-6 bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-1">
-                    {bookings.map(b => (
-                        <p key={b.id} className="font-semibold text-blue-600">- {b.subject.name}</p>
-                    ))}
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in" onClick={onClose} role="dialog" aria-modal="true">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+                <div className="p-6 border-b flex justify-between items-center">
+                    <h3 id="payment-modal-title" className="text-xl font-bold text-slate-800">Pay for {month} {year}</h3>
+                    <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-2xl font-bold" aria-label="Close payment modal">&times;</button>
                 </div>
-                
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <h3 className="text-lg font-semibold text-slate-800 mb-3">Payment Information</h3>
-                        <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm text-slate-600 space-y-2">
-                           <p>Please complete your payment using one of the methods below.</p>
-                           <p><strong>Bkash:</strong> Send payment to <strong>01234567890</strong> and provide the transaction details.</p>
-                           <p><strong>Cash in Hand:</strong> Visit our office to complete the payment in person.</p>
-                        </div>
+                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                    <div className="text-center bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <p className="text-slate-600">Amount Due</p>
+                        <p className="text-4xl font-bold text-blue-600">Tk {fee > 0 ? fee.toLocaleString() : 'N/A'}</p>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Select Payment Method</label>
-                        <div className="flex space-x-4">
-                           { (['Bkash', 'Cash in Hand'] as const).map(method => (
-                                <label key={method} className="flex items-center space-x-2 cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value={method}
-                                        checked={paymentMethod === method}
-                                        onChange={() => setPaymentMethod(method)}
-                                        className="h-4 w-4 text-blue-600 border-slate-300 focus:ring-blue-500"
-                                    />
-                                    <span className="font-medium text-slate-700">{method}</span>
-                                </label>
-                           ))}
+                    <div className="space-y-4 p-4 bg-slate-50 rounded-lg border">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Payment Method</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                {(['Bkash', 'Cash in Hand'] as const).map(method => (
+                                    <button
+                                        key={method}
+                                        type="button"
+                                        onClick={() => setPaymentMethod(method)}
+                                        className={`p-3 border rounded-lg text-sm font-semibold transition-colors ${paymentMethod === method ? 'bg-blue-600 text-white border-blue-600' : 'bg-white hover:border-blue-400'}`}
+                                    >
+                                        {method}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
+
+                        {paymentMethod === 'Bkash' && (
+                            <div className="space-y-3 pt-3 border-t animate-fade-in-fast">
+                                <p className="text-sm text-slate-600 text-center">Send payment to Bkash number: <strong className="text-slate-800">01314412016</strong> and enter the details below.</p>
+                                <div>
+                                    <label htmlFor="bkashNumber" className="block text-sm font-medium text-slate-700 mb-1">Your Bkash Number</label>
+                                    <input id="bkashNumber" type="tel" value={bkashNumber} onChange={e => setBkashNumber(e.target.value)} required className="w-full p-2.5 border bg-white border-slate-300 rounded-lg text-black focus:ring-2 focus:ring-blue-500" />
+                                </div>
+                                <div>
+                                    <label htmlFor="transactionId" className="block text-sm font-medium text-slate-700 mb-1">Transaction ID (TrxID)</label>
+                                    <input id="transactionId" type="text" value={transactionId} onChange={e => setTransactionId(e.target.value)} required className="w-full p-2.5 border bg-white border-slate-300 rounded-lg text-black focus:ring-2 focus:ring-blue-500" />
+                                </div>
+                            </div>
+                        )}
+                        {paymentMethod === 'Cash in Hand' && (
+                            <div className="pt-3 border-t animate-fade-in-fast">
+                                 <p className="text-sm text-slate-600 text-center">Your admission request will be sent for confirmation. Please pay the admission fee in cash at the coaching center.</p>
+                            </div>
+                        )}
                     </div>
 
-                    {paymentMethod === 'Bkash' && (
-                        <div className="space-y-4 animate-fade-in-fast p-4 bg-blue-50/50 rounded-lg border border-blue-200">
-                            <div>
-                                <label htmlFor="bkashNumber" className="block text-sm font-medium text-slate-700 mb-1">Your Bkash Number</label>
-                                <input
-                                    id="bkashNumber"
-                                    type="tel"
-                                    value={bkashNumber}
-                                    onChange={e => setBkashNumber(e.target.value)}
-                                    placeholder="e.g., 01xxxxxxxxx"
-                                    required
-                                    className="w-full p-3 border bg-white border-slate-300 rounded-lg text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="transactionId" className="block text-sm font-medium text-slate-700 mb-1">Transaction ID (TrxID)</label>
-                                <input
-                                    id="transactionId"
-                                    type="text"
-                                    value={transactionId}
-                                    onChange={e => setTransactionId(e.target.value)}
-                                    placeholder="e.g., 9A4B8C1D3E"
-                                    required
-                                    className="w-full p-3 border bg-white border-slate-300 rounded-lg text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-                        </div>
-                    )}
+                    {error && <p className="text-red-600 text-sm font-medium text-center">{error}</p>}
 
-                    {error && <p className="text-red-600 text-sm font-medium text-center bg-red-50 p-3 rounded-lg">{error}</p>}
-                    
-                    <button type="submit" className="w-full bg-amber-400 text-slate-900 font-bold py-4 px-4 rounded-lg hover:bg-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-300 transition-all duration-300 ease-in-out text-lg">
-                        Confirm Admission
+                    <button type="submit" disabled={loading || fee === 0} className="w-full bg-amber-400 text-slate-900 font-bold py-3 rounded-lg hover:bg-amber-500 disabled:bg-amber-300 disabled:cursor-not-allowed">
+                        {loading ? 'Processing...' : 'Confirm Payment'}
                     </button>
                 </form>
             </div>
@@ -114,4 +100,4 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ bookings, onSubmit, onBac
     );
 };
 
-export default AdmissionForm;
+export default AdmissionPaymentModal;

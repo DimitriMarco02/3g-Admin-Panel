@@ -1,0 +1,48 @@
+import type { ConfirmedBookingDetails, Subject, Teacher, Center, User, BookingStatus, OfferSlide, Notice, DiamondStudent, Enrollment, Payment, Quiz, QuizSubmission } from '../types';
+
+export interface AdminViewProps {
+  logoUrl: string;
+  allBookings: ConfirmedBookingDetails[];
+  allSubjects: Subject[];
+  allTeachers: Teacher[];
+  allCenters: Center[];
+  allUsers: User[];
+  allSlides: OfferSlide[];
+  allNotices: Notice[];
+  allDiamondStudents: DiamondStudent[];
+  allEnrollments: Enrollment[];
+  allPayments: Payment[];
+  allQuizzes: Quiz[];
+  allQuizSubmissions: QuizSubmission[];
+  onUpdateBooking: (booking: ConfirmedBookingDetails) => void;
+  onDeleteBooking: (id: string) => void;
+  onUpdateBookingStatus: (bookingId: string, status: BookingStatus) => void;
+  onAddSubject: (subject: Omit<Subject, 'id'>) => void;
+  onUpdateSubject: (subject: Subject) => void;
+  onDeleteSubject: (id: string) => void;
+  onAddTeacher: (teacher: Omit<Teacher, 'id'>) => void;
+  onUpdateTeacher: (teacher: Teacher) => void;
+  onDeleteTeacher: (id: string) => void;
+  onAddCenter: (center: Omit<Center, 'id'>) => void;
+  onUpdateCenter: (center: Center) => void;
+  onDeleteCenter: (id: string) => void;
+  onUpdateLogoUrl: (url: string) => void;
+  onAddSlide: (slide: Omit<OfferSlide, 'id'>) => void;
+  onUpdateSlide: (slide: OfferSlide) => void;
+  onDeleteSlide: (id: string) => void;
+  onAddNotice: (notice: Omit<Notice, 'id' | 'createdAt'>) => void;
+  onUpdateNotice: (notice: Notice) => void;
+  onDeleteNotice: (id: string) => void;
+  onAddDiamondStudent: (student: Omit<DiamondStudent, 'id'>) => void;
+  onUpdateDiamondStudent: (student: DiamondStudent) => void;
+  onDeleteDiamondStudent: (id: string) => void;
+  onAddPayment: (payment: Omit<Payment, 'id' | 'status'>) => void;
+  onUpdatePayment: (paymentId: string, updates: Partial<Payment>) => void;
+  onDeletePayment: (paymentId: string) => void;
+  onUpdateEnrollment: (enrollment: Enrollment) => void;
+  onDeleteEnrollment: (enrollmentId: string) => void;
+  onAddQuiz: (quiz: Omit<Quiz, 'id' | 'isActive' | 'createdAt'>) => void;
+  onUpdateQuiz: (quiz: Quiz) => void;
+  onDeleteQuiz: (quizId: string) => void;
+  onSetActiveQuiz: (quizId: string) => void;
+}

@@ -9,12 +9,11 @@ interface DiamondStudentDetailViewProps {
 const DiamondStudentDetailView: React.FC<DiamondStudentDetailViewProps> = ({ student, onBack }) => {
   return (
     <div className="p-4 sm:p-6 animate-fade-in">
-       <button onClick={onBack} className="mb-6 text-blue-600 font-semibold hover:underline flex items-center group">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 transform group-hover:-translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
-            Back to Home
+      <div className="bg-white rounded-2xl shadow-xl shadow-blue-500/10 overflow-hidden relative">
+        <button onClick={onBack} className="absolute top-4 left-4 z-10 text-blue-600 font-semibold flex items-center group bg-white/80 backdrop-blur-sm py-2 px-3 rounded-full hover:bg-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+            Back
         </button>
-
-      <div className="bg-white rounded-2xl shadow-xl shadow-blue-500/10 overflow-hidden">
         <div className="md:flex">
           <div className="md:flex-shrink-0">
             <img className="h-64 w-full object-cover md:w-64" src={student.imageUrl} alt={student.name} />

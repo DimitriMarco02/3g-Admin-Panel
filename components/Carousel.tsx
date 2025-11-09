@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 interface Slide {
-    id: number;
+    // Fix: Changed id type from number to string to match OfferSlide type.
+    id: string;
     imageUrl: string;
     title: string;
     description: string;

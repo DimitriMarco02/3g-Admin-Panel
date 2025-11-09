@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+
+
+import React, { useState, useMemo } from 'react';
 import type { Teacher, Subject, Center, User, Review } from '../types';
 
 interface TeacherDetailViewProps {
   teacher: Teacher;
-  subject: Subject;
+  allSubjects: Subject[];
   allCenters: Center[];
   currentUser: User | null;
   onBack: () => void;
   onBook: (subject: Subject) => void;
-  onAddReview: (teacherId: number, review: Omit<Review, 'id'>) => void;
+  onAddReview: (teacherId: string, review: Omit<Review, 'id'>) => void;
 }
 
 const formatTime12Hour = (time24: string): string => {
@@ -19,9 +21,12 @@ const formatTime12Hour = (time24: string): string => {
 
 type TeacherTab = 'biography' | 'experience' | 'education' | 'schedule' | 'reviews';
 
-const TeacherDetailView: React.FC<TeacherDetailViewProps> = ({ teacher, subject, allCenters, currentUser, onBack, onBook, onAddReview }) => {
-  const [activeTab, setActiveTab] = useState<TeacherTab>('biography');
+const TeacherDetailView: React.FC<TeacherDetailViewProps> = ({ teacher, allSubjects, allCenters, currentUser, onBack, onBook, onAddReview }) => {
+  const [activeTab, setActiveTab] = useState<TeacherTab>('schedule');
   const teacherCenters = allCenters.filter(c => teacher.centerIds.includes(c.id));
+  const teacherSubjects = useMemo(() => {
+    return teacher.subjectIds.map(id => allSubjects.find(s => s.id === id)).filter((s): s is Subject => !!s);
+  }, [teacher.subjectIds, allSubjects]);
 
   const TabButton: React.FC<{tabId: TeacherTab; label: string}> = ({ tabId, label }) => (
       <button
@@ -37,11 +42,10 @@ const TeacherDetailView: React.FC<TeacherDetailViewProps> = ({ teacher, subject,
   );
 
   return (
-    <div className="animate-fade-in -mt-8 sm:-mt-12">
-       <button onClick={onBack} className="absolute top-4 left-4 z-10 text-slate-800 bg-white/80 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-colors">
-         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-          </svg>
+    <div className="relative animate-fade-in -mt-8 sm:-mt-12">
+       <button onClick={onBack} className="absolute top-12 left-4 sm:left-6 z-20 text-blue-600 font-semibold flex items-center group bg-white/80 backdrop-blur-sm py-2 px-3 rounded-full hover:bg-white transition-colors">
+         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+         Back
        </button>
       <div className="bg-white rounded-b-2xl shadow-xl shadow-blue-500/10 overflow-hidden">
         {/* Profile Header */}
@@ -55,30 +59,37 @@ const TeacherDetailView: React.FC<TeacherDetailViewProps> = ({ teacher, subject,
                 </div>
                 <div className="mt-4">
                     <h1 className="text-3xl font-extrabold text-slate-900">{teacher.name}</h1>
-                    <p className="text-blue-600 font-bold mt-1">{subject.name} Instructor</p>
+                    <p className="text-blue-600 font-bold mt-1">{teacherSubjects.map(s => s.name).join(' & ')} Instructor</p>
                     <p className="text-slate-500 text-sm">at {teacherCenters.map(c => c.name).join(' & ')}</p>
                 </div>
                  <div className="mt-6">
-                    <button onClick={() => onBook(subject)} className="w-full sm:w-auto bg-amber-400 text-slate-900 font-bold py-3 px-6 rounded-lg hover:bg-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-300 transition-all duration-300 ease-in-out">
-                        Book a Trial Class
-                    </button>
+                    <div className="space-y-3">
+                        <h3 className="font-bold text-slate-800">Take Admission for:</h3>
+                        <div className="flex flex-wrap gap-2">
+                           {teacherSubjects.map(subject => (
+                              <button key={subject.id} onClick={() => onBook(subject)} className="bg-amber-400 text-slate-900 font-semibold py-2 px-4 rounded-lg hover:bg-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-300 transition-all text-sm">
+                                  {subject.name}
+                              </button>
+                           ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
         {/* Tabs */}
         <div className="px-6 border-b border-slate-200 flex space-x-2 flex-wrap">
+            <TabButton tabId="schedule" label="Schedule" />
             <TabButton tabId="biography" label="Biography" />
             <TabButton tabId="experience" label="Experience" />
             <TabButton tabId="education" label="Education" />
-            <TabButton tabId="schedule" label="Schedule" />
             <TabButton tabId="reviews" label="Reviews" />
         </div>
 
         {/* Tab Content */}
         <div className="p-6">
             {activeTab === 'biography' && <BiographyTab teacher={teacher} />}
-            {activeTab === 'schedule' && <ScheduleTab teacher={teacher} />}
+            {activeTab === 'schedule' && <ScheduleTab teacher={teacher} allCenters={allCenters} allSubjects={allSubjects} />}
             {activeTab === 'experience' && <ExperienceTab teacher={teacher} />}
             {activeTab === 'education' && <EducationTab teacher={teacher} />}
             {activeTab === 'reviews' && <ReviewsTab teacher={teacher} currentUser={currentUser} onAddReview={onAddReview} />}
@@ -95,21 +106,47 @@ const BiographyTab: React.FC<{teacher: Teacher}> = ({ teacher }) => (
     </div>
 );
 
-const ScheduleTab: React.FC<{teacher: Teacher}> = ({ teacher }) => (
-     <div className="space-y-3 animate-fade-in-fast">
-        <h3 className="text-xl font-bold text-slate-800 mb-4">Weekly Schedule</h3>
-        {teacher.schedule.map(daySchedule => (
-            <div key={daySchedule.day} className="flex items-start">
-                <div className="w-24 font-semibold text-slate-700">{daySchedule.day}:</div>
-                <div className="flex-1 flex flex-wrap gap-2">
-                    {daySchedule.times.length > 0 ? daySchedule.times.map(time => (
-                        <span key={time} className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-1 rounded-full">{formatTime12Hour(time)}</span>
-                    )) : <span className="text-slate-400">Not available</span>}
-                </div>
+const ScheduleTab: React.FC<{teacher: Teacher, allCenters: Center[], allSubjects: Subject[]}> = ({ teacher, allCenters, allSubjects }) => {
+    return (
+        <div className="animate-fade-in-fast">
+            <h3 className="text-xl font-bold text-slate-800 mb-4">Weekly Batches</h3>
+            <div className="space-y-4">
+                {teacher.batches.length > 0 ? teacher.batches.map(batch => {
+                    const subject = allSubjects.find(s => s.id === batch.subjectId);
+                    const center = allCenters.find(c => c.id === batch.centerId);
+                    if (!subject || !center) return null;
+
+                    return (
+                        <div key={batch.id} className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <h4 className="font-bold text-slate-800 text-lg">{batch.batchName}</h4>
+                            <p className="text-sm text-slate-500">{subject.name} at {center.name}</p>
+                            <p className="text-sm font-semibold text-blue-600 mt-1">{batch.days.join(' - ')}</p>
+
+                            <div className="mt-3 space-y-3">
+                                {batch.boardTimeGroups.map(boardGroup => (
+                                    <div key={boardGroup.boardName}>
+                                        <p className="text-xs font-bold uppercase text-slate-400 tracking-wider">{boardGroup.boardName}</p>
+                                        <div className="mt-1 flex flex-wrap gap-2">
+                                            {Object.entries(boardGroup.levelSlots).map(([level, times]) =>
+                                                // Fix: Add Array.isArray check to correctly narrow the type of 'times' and prevent errors.
+                                                (Array.isArray(times) && times.length > 0) && (
+                                                    <div key={level} className="flex items-baseline space-x-2 bg-white p-2 rounded-lg border">
+                                                        <span className="font-semibold text-sm text-slate-700">{level}:</span>
+                                                        <span className="text-sm text-slate-600">{times.map(formatTime12Hour).join(', ')}</span>
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    );
+                }) : <p className="text-center text-slate-500 py-8">No batches have been scheduled for this teacher.</p>}
             </div>
-        ))}
-    </div>
-);
+        </div>
+    );
+};
 
 const ExperienceTab: React.FC<{teacher: Teacher}> = ({ teacher }) => (
     <div className="animate-fade-in-fast">
@@ -148,7 +185,7 @@ const EducationTab: React.FC<{teacher: Teacher}> = ({ teacher }) => (
 const ReviewsTab: React.FC<{
     teacher: Teacher;
     currentUser: User | null;
-    onAddReview: (teacherId: number, review: Omit<Review, 'id'>) => void;
+    onAddReview: (teacherId: string, review: Omit<Review, 'id'>) => void;
 }> = ({ teacher, currentUser, onAddReview }) => {
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');

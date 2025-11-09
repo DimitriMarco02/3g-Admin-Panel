@@ -7,10 +7,11 @@ interface BookingsListProps {
   onTakeAdmission: (booking: ConfirmedBookingDetails) => void;
   onTakeAdmissionForAll: (bookings: ConfirmedBookingDetails[]) => void;
   onDownloadReceipt: (booking: ConfirmedBookingDetails) => void;
-  onUpdateBookingStatus: (bookingId: number, status: BookingStatus) => void;
+  onUpdateBookingStatus: (bookingId: string, status: BookingStatus) => void;
+  onBack: () => void;
 }
 
-const BookingsList: React.FC<BookingsListProps> = ({ allBookings, currentUser, onTakeAdmission, onTakeAdmissionForAll, onDownloadReceipt, onUpdateBookingStatus }) => {
+const BookingsList: React.FC<BookingsListProps> = ({ allBookings, currentUser, onTakeAdmission, onTakeAdmissionForAll, onDownloadReceipt, onUpdateBookingStatus, onBack }) => {
   
   const userBookings = currentUser ? allBookings.filter(b => b.userId === currentUser.id) : [];
   const eligibleForAdmission = userBookings.filter(b => b.status === 'Booked' || b.status === 'Completed');
@@ -27,7 +28,11 @@ const BookingsList: React.FC<BookingsListProps> = ({ allBookings, currentUser, o
 
   return (
     <div className="p-4 sm:p-6 animate-fade-in">
-      <div className="flex justify-between items-center mb-6 px-2">
+      <button onClick={onBack} className="mb-6 text-blue-600 font-semibold hover:underline flex items-center group">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 transform group-hover:-translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+          Back
+      </button>
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold text-slate-800">My Bookings</h2>
         {eligibleForAdmission.length > 1 && (
             <button

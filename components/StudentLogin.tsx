@@ -1,21 +1,26 @@
 import React, { useState } from 'react';
 
 interface StudentLoginProps {
-    onLogin: (username: string, password: string) => boolean;
+    onLogin: (email: string, password: string) => Promise<boolean>;
     onNavigateToSignup: () => void;
+    onNavigateToForgotPassword: () => void;
 }
 
-const StudentLogin: React.FC<StudentLoginProps> = ({ onLogin, onNavigateToSignup }) => {
-    const [username, setUsername] = useState('');
+const StudentLogin: React.FC<StudentLoginProps> = ({ onLogin, onNavigateToSignup, onNavigateToForgotPassword }) => {
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        const success = onLogin(username, password);
+        setLoading(true);
+        setError('');
+        const success = await onLogin(email, password);
         if (!success) {
-            setError('Invalid username or password.');
+            setError('Invalid email or password.');
         }
+        setLoading(false);
     };
 
     return (
@@ -28,12 +33,12 @@ const StudentLogin: React.FC<StudentLoginProps> = ({ onLogin, onNavigateToSignup
                     </div>
                     <form onSubmit={handleLogin} className="space-y-5">
                         <div>
-                            <label htmlFor="username" className="block text-sm font-medium text-slate-700 mb-1">Username</label>
+                            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">Email</label>
                             <input
-                                type="text"
-                                id="username"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                type="email"
+                                id="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 className="mt-1 block w-full px-4 py-3 bg-white border border-slate-300 rounded-lg shadow-sm text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition"
                                 required
                             />
@@ -50,10 +55,16 @@ const StudentLogin: React.FC<StudentLoginProps> = ({ onLogin, onNavigateToSignup
                             />
                         </div>
 
+                        <div className="text-right text-sm">
+                            <button type="button" onClick={onNavigateToForgotPassword} className="font-medium text-blue-600 hover:underline">
+                                Forgot Password?
+                            </button>
+                        </div>
+
                         {error && <p className="text-red-600 text-sm font-medium text-center bg-red-50 p-3 rounded-lg">{error}</p>}
                         
-                        <button type="submit" className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-medium text-slate-900 bg-amber-400 hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-300">
-                            Login
+                        <button type="submit" disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-medium text-slate-900 bg-amber-400 hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-300 disabled:bg-amber-300 disabled:cursor-not-allowed">
+                            {loading ? 'Logging in...' : 'Login'}
                         </button>
                          <p className="text-center text-sm text-slate-500">
                             Don't have an account?{' '}
