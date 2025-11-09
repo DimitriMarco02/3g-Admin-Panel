@@ -34,7 +34,7 @@ const SubjectsManager: React.FC<AdminViewProps> = ({ allSubjects, onAddSubject, 
     const totalPages = Math.ceil(filteredSubjects.length / subjectsPerPage);
     const paginatedSubjects = filteredSubjects.slice((currentPage - 1) * subjectsPerPage, currentPage * subjectsPerPage);
 
-    const openModalForNew = () => { setEditingSubject({ name: '', description: '', imageUrl: '', feesByLevel: {} }); setIsModalOpen(true); };
+    const openModalForNew = () => { setEditingSubject({ name: '', description: '', imageUrl: '', bannerUrl: '', feesByLevel: {} }); setIsModalOpen(true); };
     const openModalForEdit = (subject: Subject) => { setEditingSubject(subject); setIsModalOpen(true); };
     const closeModal = () => { setIsModalOpen(false); setEditingSubject(null); };
 
@@ -110,7 +110,8 @@ const SubjectsManager: React.FC<AdminViewProps> = ({ allSubjects, onAddSubject, 
                     <form onSubmit={handleSave} className="p-6 space-y-4">
                         <InputField label="Name" value={editingSubject.name} onChange={e => setEditingSubject({...editingSubject, name: e.target.value})} required />
                         <TextAreaField label="Description" value={editingSubject.description} onChange={e => setEditingSubject({...editingSubject, description: e.target.value})} required />
-                        <InputField label="Image URL" value={editingSubject.imageUrl} onChange={e => setEditingSubject({...editingSubject, imageUrl: e.target.value})} required />
+                        <InputField label="Image URL (for cards)" value={editingSubject.imageUrl} onChange={e => setEditingSubject({...editingSubject, imageUrl: e.target.value})} required />
+                        <InputField label="Banner URL (for detail page, optional)" value={editingSubject.bannerUrl || ''} onChange={e => setEditingSubject({...editingSubject, bannerUrl: e.target.value})} placeholder="If empty, card image URL is used" />
                         
                         <fieldset className="p-4 border rounded-lg bg-slate-50">
                             <legend className="font-semibold text-slate-700 px-2">Fees by Class Level</legend>

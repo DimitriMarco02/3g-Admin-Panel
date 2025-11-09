@@ -1,4 +1,5 @@
 
+
 import React, { useMemo, useState, useEffect } from 'react';
 import type { Subject, Teacher } from '../types';
 import TeacherCard from './TeacherCard';
@@ -116,7 +117,7 @@ const SubjectDetailView: React.FC<SubjectDetailViewProps> = ({ subject, allTeach
         {/* Profile Header */}
         <div>
             <div className="h-48 bg-slate-200">
-                <img src={subject.imageUrl} alt={`${subject.name} banner`} className="w-full h-full object-cover"/>
+                <img src={subject.bannerUrl || subject.imageUrl} alt={`${subject.name} banner`} className="w-full h-full object-cover"/>
             </div>
             <div className="px-6 pb-6">
                 <div className="-mt-16">

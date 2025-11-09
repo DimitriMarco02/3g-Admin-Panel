@@ -20,6 +20,7 @@ export interface Subject {
   name: string;
   description: string;
   imageUrl: string;
+  bannerUrl?: string;
   feesByLevel?: {
     [key in ScheduleLevel]?: number;
   };
